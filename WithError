@@ -1,0 +1,105 @@
+//с ошибками от Риты Савиной
+
+package com.company;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+interface Observer {
+    void update(String message);
+}
+
+interface Notifier {
+    void addObserver(Observer observer);
+    void removeObserver(Observer observer);
+    void notifyObservers(String message);
+}
+
+class Group implements Notifier {
+    private List<Observer> observers;
+    private String name;
+
+    public Group(String name) {
+        this.name = name;
+        this.observers = new ArrayList<>();
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer); // Нет проверки на дублирование
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(String message) {
+        // Потенциальная ошибка: случайное исключение
+        Random rand = new Random();
+        if (rand.nextBoolean()) {
+            throw new RuntimeException("Ошибка при уведомлении подписчиков!"); // Непредсказуемое поведение
+        }
+        for (Observer observer : observers) {
+            observer.update(name + ": " + message);
+        }
+    }
+}
+
+class User implements Observer {
+    private String name;
+
+    public User(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void update(String message) {
+        if (message == null) { // Ошибка: Неправильная обработка null
+            throw new IllegalArgumentException("Сообщение не может быть null");
+        }
+        System.out.println(name + " получил сообщение от группы - " + message);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // Создание групп
+        Group group1 = new Group("Фадеев А.А.-история");
+        Group group2 = new Group("Сериалы");
+        Group group3 = new Group("ИТ-Колледж");
+        Group group4 = new Group("ГТРК-Пенза");
+
+        User user1 = new User("Пользователь 1");
+        User user2 = new User("Пользователь 2");
+
+        // Добавление наблюдателей без проверки на дублирование
+        group1.addObserver(user1);
+        group2.addObserver(user1);
+        group3.addObserver(user1);
+
+        group1.addObserver(user2);
+        group2.addObserver(user2);
+        group3.addObserver(user2);
+        group4.addObserver(user2);
+
+        // Неправильное уведомление с потенциальным исключением
+        group1.notifyObservers("Здраствуйте, студенты! Отправьте...");
+
+        // Ошибка в уведомлении, передавая null
+        group2.notifyObservers(null); // Это вызовет IllegalArgumentException
+
+        // Случайная ошибка, вызванная случайным исключением
+        try {
+            group3.notifyObservers("Дружба народов - 21 июня...");
+        } catch (RuntimeException e) {
+            System.out.println("Исключение: " + e.getMessage());
+        }
+
+        // Вторая часть, чтобы усложнить логику
+        group4.notifyObservers("В Бессоновском районе...");
+        group4.addObserver(null); // Неправильная обработка: попытка добавить null как наблюдателя
+    }
+}
