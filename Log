@@ -46,7 +46,7 @@ class Group implements Notifier {
     public void addObserver(Observer observer) {
         if (observer == null) {
             LoggerUtil.warning("Проблема при добавлении наблюдателя: null");
-            return; // Игнорировать попытку добавления null
+            return;
         }
         if (!observers.contains(observer)) {
             observers.add(observer);
@@ -69,9 +69,8 @@ class Group implements Notifier {
     public void notifyObservers(String message) {
         if (message == null) {
             LoggerUtil.error("Сообщение не может быть null при уведомлении.");
-            return; // Игнорировать уведомления с null
+            return;
         }
-        // Потенциальная ошибка: случайное исключение
         Random rand = new Random();
         if (rand.nextBoolean()) {
             LoggerUtil.error("Ошибка при уведомлении подписчиков в группе: " + name);
@@ -108,7 +107,6 @@ class User implements Observer {
 
 public class Main {
     public static void main(String[] args) {
-        // Создание групп
         Group group1 = new Group("Фадеев А.А.-история");
         Group group2 = new Group("Сериалы");
         Group group3 = new Group("ИТ-Колледж");
@@ -117,7 +115,6 @@ public class Main {
         User user1 = new User("Пользователь 1");
         User user2 = new User("Пользователь 2");
 
-        // Добавление наблюдателей
         group1.addObserver(user1);
         group2.addObserver(user1);
         group3.addObserver(user1);
@@ -127,8 +124,7 @@ public class Main {
         group3.addObserver(user2);
         group4.addObserver(user2);
 
-        // Неправильное уведомление, передавая null
-        group2.notifyObservers(null); // Это теперь будет обработано
+        group2.notifyObservers(null);
 try {
             group1.notifyObservers("Здравствуйте, студенты! Отправьте...");
             group3.notifyObservers("Дружба народов - 21 июня...");
@@ -137,8 +133,7 @@ try {
             LoggerUtil.error("Исключение в main: " + e.getMessage());
         }
 
-        // Вторая часть, чтобы усложнить логику
         group4.notifyObservers("В Бессоновском районе...");
-        group4.addObserver(null); // Проблема: добавление null
+        group4.addObserver(null);
     }
 }
