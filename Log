@@ -1,0 +1,144 @@
+//с логированием
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+interface Observer {
+    void update(String message);
+}
+
+interface Notifier {
+    void addObserver(Observer observer);
+    void removeObserver(Observer observer);
+    void notifyObservers(String message);
+}
+
+class LoggerUtil {
+    private static final Logger logger = Logger.getLogger(LoggerUtil.class.getName());
+
+    public static void info(String message) {
+        logger.log(Level.INFO, message);
+    }
+
+    public static void warning(String message) {
+        logger.log(Level.WARNING, message);
+    }
+
+    public static void error(String message) {
+        logger.log(Level.SEVERE, message);
+    }
+}
+
+class Group implements Notifier {
+    private List<Observer> observers;
+    private String name;
+
+    public Group(String name) {
+        this.name = name;
+        this.observers = new ArrayList<>();
+        LoggerUtil.info("Группа создана: " + name);
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        if (observer == null) {
+            LoggerUtil.warning("Проблема при добавлении наблюдателя: null");
+            return; // Игнорировать попытку добавления null
+        }
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+            LoggerUtil.info("Наблюдатель добавлен: " + observer);
+        } else {
+            LoggerUtil.warning("Наблюдатель уже присутствует в группе: " + observer);
+        }
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        if (observers.remove(observer)) {
+            LoggerUtil.info("Наблюдатель удален: " + observer);
+        } else {
+            LoggerUtil.warning("Не удалось удалить наблюдателя: " + observer);
+        }
+    }
+
+    @Override
+    public void notifyObservers(String message) {
+        if (message == null) {
+            LoggerUtil.error("Сообщение не может быть null при уведомлении.");
+            return; // Игнорировать уведомления с null
+        }
+        // Потенциальная ошибка: случайное исключение
+        Random rand = new Random();
+        if (rand.nextBoolean()) {
+            LoggerUtil.error("Ошибка при уведомлении подписчиков в группе: " + name);
+            throw new RuntimeException("Ошибка при уведомлении подписчиков!");
+        }
+        for (Observer observer : observers) {
+            observer.update(name + ": " + message);
+        }
+    }
+}
+
+class User implements Observer {
+    private String name;
+
+    public User(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void update(String message) {
+        if (message == null) {
+            LoggerUtil.error("Сообщение не может быть null для " + name);
+            throw new IllegalArgumentException("Сообщение не может быть null");
+        }
+        System.out.println(name + " получил сообщение от группы - " + message);
+        LoggerUtil.info(name + " обработал сообщение: " + message);
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // Создание групп
+        Group group1 = new Group("Фадеев А.А.-история");
+        Group group2 = new Group("Сериалы");
+        Group group3 = new Group("ИТ-Колледж");
+        Group group4 = new Group("ГТРК-Пенза");
+
+        User user1 = new User("Пользователь 1");
+        User user2 = new User("Пользователь 2");
+
+        // Добавление наблюдателей
+        group1.addObserver(user1);
+        group2.addObserver(user1);
+        group3.addObserver(user1);
+
+        group1.addObserver(user2);
+        group2.addObserver(user2);
+        group3.addObserver(user2);
+        group4.addObserver(user2);
+
+        // Неправильное уведомление, передавая null
+        group2.notifyObservers(null); // Это теперь будет обработано
+try {
+            group1.notifyObservers("Здравствуйте, студенты! Отправьте...");
+            group3.notifyObservers("Дружба народов - 21 июня...");
+        } catch (RuntimeException e) {
+            System.out.println("Исключение: " + e.getMessage());
+            LoggerUtil.error("Исключение в main: " + e.getMessage());
+        }
+
+        // Вторая часть, чтобы усложнить логику
+        group4.notifyObservers("В Бессоновском районе...");
+        group4.addObserver(null); // Проблема: добавление null
+    }
+}
