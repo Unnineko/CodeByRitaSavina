@@ -133,7 +133,7 @@ try {
             LoggerUtil.error("Исключение в main: " + e.getMessage());
         }
 
-        group4.notifyObservers("В Бессоновском районе...");
+        group4.notifyObservers("В Заречном...");
         group4.addObserver(null);
     }
 }
