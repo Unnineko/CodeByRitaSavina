@@ -39,41 +39,41 @@ class Group implements Notifier {
     public Group(String name) {
         this.name = name;
         this.observers = new ArrayList<>();
-        LoggerUtil.info("Группа создана: " + name);
+        LoggerUtil.info("Группа создана: " + name); //логируем создание группы
     }
 
     @Override
     public void addObserver(Observer observer) {
         if (observer == null) {
-            LoggerUtil.warning("Проблема при добавлении наблюдателя: null");
+            LoggerUtil.warning("Проблема при добавлении наблюдателя: null"); // лгируем предупреждение о добавлении null
             return;
         }
         if (!observers.contains(observer)) {
             observers.add(observer);
-            LoggerUtil.info("Наблюдатель добавлен: " + observer);
+            LoggerUtil.info("Наблюдатель добавлен: " + observer); //логируем успешное добавление наблюдателя
         } else {
-            LoggerUtil.warning("Наблюдатель уже присутствует в группе: " + observer);
+            LoggerUtil.warning("Наблюдатель уже присутствует в группе: " + observer); //логируем предупреждение о дублировании наблюдателя
         }
     }
 
     @Override
     public void removeObserver(Observer observer) {
         if (observers.remove(observer)) {
-            LoggerUtil.info("Наблюдатель удален: " + observer);
+            LoggerUtil.info("Наблюдатель удален: " + observer);//логируем успешное удаление наблюдателя
         } else {
-            LoggerUtil.warning("Не удалось удалить наблюдателя: " + observer);
+            LoggerUtil.warning("Не удалось удалить наблюдателя: " + observer); //логируем предупреждение о неудаче удаления
         }
     }
 
     @Override
     public void notifyObservers(String message) {
         if (message == null) {
-            LoggerUtil.error("Сообщение не может быть null при уведомлении.");
+            LoggerUtil.error("Сообщение не может быть null при уведомлении."); //логируем ошибку при null-сообщении
             return;
         }
         Random rand = new Random();
         if (rand.nextBoolean()) {
-            LoggerUtil.error("Ошибка при уведомлении подписчиков в группе: " + name);
+            LoggerUtil.error("Ошибка при уведомлении подписчиков в группе: " + name); //логируем случайную ошибку уведомления
             throw new RuntimeException("Ошибка при уведомлении подписчиков!");
         }
         for (Observer observer : observers) {
@@ -92,11 +92,11 @@ class User implements Observer {
     @Override
     public void update(String message) {
         if (message == null) {
-            LoggerUtil.error("Сообщение не может быть null для " + name);
+            LoggerUtil.error("Сообщение не может быть null для " + name);//логируем ошибку при null-сообщении
             throw new IllegalArgumentException("Сообщение не может быть null");
         }
         System.out.println(name + " получил сообщение от группы - " + message);
-        LoggerUtil.info(name + " обработал сообщение: " + message);
+        LoggerUtil.info(name + " обработал сообщение: " + message); //логируем успешную обработку сообщения пользователем
     }
 
     @Override
@@ -125,12 +125,12 @@ public class Main {
         group4.addObserver(user2);
 
         group2.notifyObservers(null);
-try {
+        try {
             group1.notifyObservers("Здравствуйте, студенты! Отправьте...");
             group3.notifyObservers("Дружба народов - 21 июня...");
         } catch (RuntimeException e) {
             System.out.println("Исключение: " + e.getMessage());
-            LoggerUtil.error("Исключение в main: " + e.getMessage());
+            LoggerUtil.error("Исключение в main: " + e.getMessage()); //логируем исключение в основном методе
         }
 
         group4.notifyObservers("В Заречном...");
