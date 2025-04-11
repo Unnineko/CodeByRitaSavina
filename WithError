@@ -1,7 +1,5 @@
 //с ошибками от Риты Савиной
 
-package com.company;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,7 +25,7 @@ class Group implements Notifier {
 
     @Override
     public void addObserver(Observer observer) {
-        observers.add(observer);
+        observers.add(observer); //ошибка: нет проверки на дублирование
     }
 
     @Override
@@ -37,9 +35,10 @@ class Group implements Notifier {
 
     @Override
     public void notifyObservers(String message) {
+        //ошибка: случайное исключение может привести к непредсказуемому поведению
         Random rand = new Random();
         if (rand.nextBoolean()) {
-            throw new RuntimeException("Ошибка при уведомлении подписчиков!");
+            throw new RuntimeException("Ошибка при уведомлении подписчиков!"); //непредсказуемое поведение, так как исключение выбрасывается случайно
         }
         for (Observer observer : observers) {
             observer.update(name + ": " + message);
@@ -56,7 +55,7 @@ class User implements Observer {
 
     @Override
     public void update(String message) {
-        if (message == null) {
+        if (message == null) { //ошибка: Неправильная обработка null
             throw new IllegalArgumentException("Сообщение не может быть null");
         }
         System.out.println(name + " получил сообщение от группы - " + message);
@@ -82,17 +81,23 @@ public class Main {
         group3.addObserver(user2);
         group4.addObserver(user2);
 
-        group1.notifyObservers("Здраствуйте, студенты! Отправьте...");
+        //потенциальная ошибка: уведомление может вызвать случайное исключение
+        group1.notifyObservers("Здравствуйте, студенты! Отправьте...");
 
-        group2.notifyObservers(null);
+        //ошибка: передача null в notifyObservers вызовет IllegalArgumentException
+        group2.notifyObservers(null); // Это вызовет IllegalArgumentException
 
+        //случайная ошибка, вызванная случайным исключением
         try {
             group3.notifyObservers("Дружба народов - 21 июня...");
         } catch (RuntimeException e) {
             System.out.println("Исключение: " + e.getMessage());
         }
 
+        //уведомление, которое может вызвать случайное исключение
         group4.notifyObservers("В Бессоновском районе...");
-        group4.addObserver(null);
+
+        //ошибка: попытка добавить null как наблюдателя, что может привести к NullPointerException
+        group4.addObserver(null); //неправильная обработка: добавление null как наблюдателя не должно происходить
     }
 }
